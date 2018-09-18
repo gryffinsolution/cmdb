@@ -11,6 +11,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Duration;
 
 import util.ADao;
+import util.ASao;
 import util.RDao;
 
 public class Worker implements Callable<Boolean> {
@@ -50,8 +51,13 @@ public class Worker implements Callable<Boolean> {
 		Connection conFLOG = rDao.getConnection(rdbUrl, rdbUser, rdbPasswd);
 		ArrayList<String> hosts = rDao.getHostsMT(conFLOG, thNo - 1, thAll,
 				agentVersion, sql);
-		// ArrayList<String> hosts = rDao.getHostsTest();
+		// ArrayList<String> hosts = rDao.getHostsTest();//test
+
+		HashMap<String, Boolean> isV3 = rDao.getV3Info(conFLOG);
+
 		ADao aDao = new ADao();
+		ASao aSao = new ASao();
+
 		int port = agentPort;
 		int i = 0;
 
@@ -63,8 +69,16 @@ public class Worker implements Callable<Boolean> {
 			HashMap<String, Float> kvFloatItems = new HashMap<String, Float>();
 
 			DateTime start = new DateTime();
-			aDao.getHostInfos(port, host, columns, columnMap, kvBaseItems,
-					kvStrItems, kvFloatItems);
+
+			LOG.trace(thNo + "-" + i + ":" + host);
+
+			if (isV3.containsKey(host) && isV3.get(host)) {
+				aSao.getHostInfos(port, host, columns, columnMap, kvBaseItems,
+						kvStrItems, kvFloatItems);
+			} else {
+				aDao.getHostInfos(port, host, columns, columnMap, kvBaseItems,
+						kvStrItems, kvFloatItems);
+			}
 			DateTime end = new DateTime();
 			Duration elapsedTime = new Duration(start, end);
 			long elapsedSecInt = (elapsedTime.getMillis() / 1000);
