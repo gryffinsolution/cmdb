@@ -26,7 +26,7 @@ public class CMDBMgr {
 			LOG.error("  Message:    " + e.getMessage());
 			e = e.getNextException();
 		}
-	}
+	} 
 
 	public static void main(String[] args) {
 		Conf cf = new Conf();
