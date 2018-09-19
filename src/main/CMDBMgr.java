@@ -50,7 +50,6 @@ public class CMDBMgr {
 		for (String column : columns) {
 			cf.getColumnType(columnMap, column);
 		}
-
 		ExecutorService pool = Executors.newFixedThreadPool(thAll);
 		Set<Future<Boolean>> set = new HashSet<Future<Boolean>>();
 		for (int thNo = 1; thNo <= thAll; thNo++) {

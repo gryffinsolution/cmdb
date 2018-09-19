@@ -63,7 +63,6 @@ public class Worker implements Callable<Boolean> {
 
 		for (String host : hosts) {
 			i++;
-			LOG.trace(thNo + "-" + i + ":" + host);
 			HashMap<String, String> kvBaseItems = new HashMap<String, String>();
 			HashMap<String, String> kvStrItems = new HashMap<String, String>();
 			HashMap<String, Float> kvFloatItems = new HashMap<String, Float>();
