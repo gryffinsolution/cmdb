@@ -1,5 +1,11 @@
 package util;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -221,5 +227,102 @@ public class RDao {
 			printSQLException(e);
 		}
 		return isV3;
+	}
+
+	public void checkLic(String licFile, Connection conCMDB, String sql,
+			String reportFile) {
+
+		int NodesPurchased = 0;
+		int NodesEvaluation = 0;
+		StringBuffer sb = new StringBuffer("F.L.O.G. license check report\n");
+		try {
+			File keyFile = new File(licFile);
+			FileReader fileReader = new FileReader(keyFile);
+			BufferedReader bufferedReader = new BufferedReader(fileReader);
+			String line;
+
+			while ((line = bufferedReader.readLine()) != null) {
+				if (line.startsWith("NodesPuchased")) {
+					String[] items = line.split(":");
+					if (items.length >= 2) {
+						NodesPurchased = Integer.parseInt(items[1].trim());
+						LOG.info("NodesPurchased:" + NodesPurchased);
+						sb.append("NodesPurchased:" + NodesPurchased + "\n");
+					}
+				}
+				if (line.startsWith("NodesEvaluation")) {
+					String[] items = line.split(":");
+					if (items.length >= 2) {
+						NodesEvaluation = Integer.parseInt(items[1].trim());
+						LOG.info("NodesEvaluation:" + NodesEvaluation);
+						sb.append("NodesEvaluation:" + NodesEvaluation + "\n");
+					}
+				}
+				if (line.startsWith("EvalBaseDate")) {
+					String[] items = line.split(":");
+					if (items.length >= 2) {
+						LOG.info("EvaluationBaseDate:" + items[1]);
+						sb.append("EvaluationBaseDate:" + items[1] + "\n");
+					}
+				}
+			}
+			bufferedReader.close();
+			fileReader.close();
+		} catch (IOException e) {
+			LOG.fatal("there is no license file at " + licFile);
+		}
+
+		Statement stmt;
+		String host = null;
+		int i = 1;
+		try {
+			stmt = conCMDB.createStatement();
+			ResultSet rs = stmt.executeQuery(sql);
+			sb.append("\nNew node list\n");
+			sb.append("Node number / total purchased node : node name\n");
+			while (rs.next()) {
+				host = rs.getString(1);
+				sb.append(i + "/" + NodesPurchased + ":" + host + "\n");
+				if (i > NodesPurchased) {
+					LOG.fatal("Non-Licensed Server Name = No.(" + i + "/"
+							+ NodesPurchased + "):" + host);
+				}
+				i++;
+			}
+			rs.close();
+			stmt.close();
+		} catch (SQLException e) {
+			printSQLException(e);
+		}
+		if (i > NodesPurchased) {
+			LOG.fatal("License exceed.\nNumber of purchased node license is "
+					+ NodesPurchased + "\nNumber of license exceed is "
+					+ (i - NodesPurchased)
+					+ "\nPlease contact help@flogsoft.com");
+			sb.append("License exceed.\nNumber of purchased node license is "
+					+ NodesPurchased + "\nNumber of license exceed is "
+					+ (i - NodesPurchased) + "\n");
+			sb.append("Your license is not enough for operating mode\n");
+			sb.append("Please contact help@flogsoft.com\n");
+		}
+
+		BufferedWriter bw = null;
+		FileWriter fw = null;
+		try {
+			fw = new FileWriter(reportFile);
+			bw = new BufferedWriter(fw);
+			bw.write(sb.toString());
+		} catch (IOException e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (bw != null)
+					bw.close();
+				if (fw != null)
+					fw.close();
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		}
 	}
 }

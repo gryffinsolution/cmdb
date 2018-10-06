@@ -1,5 +1,6 @@
 package main;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,6 +15,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import util.Conf;
+import util.RDao;
 
 public class CMDBMgr {
 	private static final Logger LOG = LogManager.getLogger(CMDBMgr.class);
@@ -37,9 +39,14 @@ public class CMDBMgr {
 			System.exit(0);
 		}
 
-		String rdbUrl = cf.getDbURL();
-		String rdbUser = cf.getSingleString("user");
-		String rdbPasswd = cf.getSingleString("password");
+		String rdbUrl = cf.getSingleString("main_db_url");
+		String rdbUser = cf.getSingleString("main_user");
+		String rdbPasswd = cf.getSingleString("main_password");
+
+		String cmdbUrl = cf.getSingleString("cmdb_db_url");
+		String cmdbUser = cf.getSingleString("cmdb_user");
+		String cmdbPasswd = cf.getSingleString("cmdb_password");
+
 		int thAll = cf.getSinglefValue("no_of_thread");
 		int agentPort = cf.getSinglefValue("agent_port");
 		String agentVersion = cf.getSingleString("agent_version");
@@ -60,5 +67,14 @@ public class CMDBMgr {
 			set.add(future);
 		}
 		pool.shutdown();
+		if (cf.getSingleString("lic_chk_result_file").length() > 2) {
+			RDao rDao = new RDao();
+			Connection conCMDB = rDao.getConnection(cmdbUrl, cmdbUser,
+					cmdbPasswd);
+			rDao.checkLic(cf.getSingleString("lic_key_file"), conCMDB,
+					cf.getSingleString("lic_check_sql"),
+					cf.getSingleString("lic_chk_result_file"));
+			rDao.disconnect(conCMDB);
+		}
 	}
 }
