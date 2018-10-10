@@ -242,7 +242,7 @@ public class RDao {
 			String line;
 
 			while ((line = bufferedReader.readLine()) != null) {
-				if (line.startsWith("NodesPuchased")) {
+				if (line.startsWith("NodesPurchased")) {
 					String[] items = line.split(":");
 					if (items.length >= 2) {
 						NodesPurchased = Integer.parseInt(items[1].trim());
