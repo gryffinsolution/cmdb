@@ -167,7 +167,7 @@ public class RDao {
 				String value =kvStrItems.get(key);
 				value=value.replaceAll("'","''");
 				
-				sqlInfoUpdtPre = sqlInfoUpdtPre + " AND  CI." + key + "='"
+				sqlInfoUpdtPre = sqlInfoUpdtPre + " AND CI." + key + "='"
 						+ value + "'";
 				sqlInfoUpdtMid = sqlInfoUpdtMid + "," + key;
 				sqlInfoUpdtPst = sqlInfoUpdtPst + "','" + value;
