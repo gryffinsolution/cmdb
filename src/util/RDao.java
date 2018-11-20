@@ -164,10 +164,13 @@ public class RDao {
 			String sqlInfoUpdtPst = ") VALUES ('" + host;
 
 			for (String key : kvStrItems.keySet()) {
+				String value =kvStrItems.get(key);
+				value=value.replaceAll("'","''");
+				
 				sqlInfoUpdtPre = sqlInfoUpdtPre + " AND CI." + key + "='"
-						+ kvStrItems.get(key) + "'";
+						+ value + "'";
 				sqlInfoUpdtMid = sqlInfoUpdtMid + "," + key;
-				sqlInfoUpdtPst = sqlInfoUpdtPst + "','" + kvStrItems.get(key);
+				sqlInfoUpdtPst = sqlInfoUpdtPst + "','" + value;
 			}
 			sqlInfoUpdtPst = sqlInfoUpdtPst + "'";
 			for (String key : kvFloatItems.keySet()) {
