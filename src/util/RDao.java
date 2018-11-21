@@ -141,6 +141,11 @@ public class RDao {
 			if (host == null || host.matches("null")) {
 				return false;
 			}
+			if (kvFloatItems.size() <= 0) {
+				LOG.error("no Float value from " + host);
+				LOG.error("abnormal CMDB data. skipped about " + host);
+				return false;
+			}
 
 			for (String key : kvBaseItems.keySet()) {
 				LOG.info("K:" + key + ",V:" + kvBaseItems.get(key));
@@ -164,9 +169,9 @@ public class RDao {
 			String sqlInfoUpdtPst = ") VALUES ('" + host;
 
 			for (String key : kvStrItems.keySet()) {
-				String value =kvStrItems.get(key);
-				value=value.replaceAll("'","''");
-				
+				String value = kvStrItems.get(key);
+				value = value.replaceAll("'", "''");
+
 				sqlInfoUpdtPre = sqlInfoUpdtPre + " AND CI." + key + "='"
 						+ value + "'";
 				sqlInfoUpdtMid = sqlInfoUpdtMid + "," + key;
